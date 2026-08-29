@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotocelda y Potenciómetro con Arduino — Simulador y Presentación</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Roboto+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js & PptxGenJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #090d16;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .font-mono-code {
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .tab-btn {
+            transition: all 0.25s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        /* ANIMACIÓN DE TRANSICIÓN DE DIAPOSITIVAS */
+        @keyframes slideInSwitch {
+            0% {
+                opacity: 0;
+                transform: translateY(28px) scale(0.97);
+                filter: blur(4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .slide-card {
+            display: none;
+            width: 100%;
+            min-height: 640px;
+            height: auto;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 44px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            position: relative;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .slide-card.active-slide {
+            display: flex;
+            animation: slideInSwitch 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .nav-btn-integrated {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 30;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .nav-btn-integrated:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+            scale: 1.12;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+        }
+        .nav-btn-left { left: -24px; }
+        .nav-btn-right { right: -24px; }
+
+        @media (max-width: 768px) {
+            .nav-btn-left { left: 8px; }
+            .nav-btn-right { right: 8px; }
+            .slide-card { padding: 24px 16px; min-height: 580px; }
+        }
+
+        .led-indicator {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        .led-red-off { background-color: #450a0a; opacity: 0.4; }
+        .led-red-on { background-color: #ef4444; box-shadow: 0 0 25px #ef4444, inset 0 0 8px #ffffff; opacity: 1; }
+        .led-green-off { background-color: #064e3b; opacity: 0.4; }
+        .led-green-on { background-color: #10b981; box-shadow: 0 0 25px #10b981, inset 0 0 8px #ffffff; opacity: 1; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+        }
+
+        .code-box {
+            background: #060911;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Roboto Mono', monospace;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+        .code-keyword { color: #f472b6; font-weight: bold; }
+        .code-var { color: #38bdf8; }
+        .code-num { color: #fbbf24; }
+        .code-comment { color: #64748b; font-style: italic; }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="flex flex-col items-center">
+
+    <!-- NAVBAR -->
+    <header class="fixed top-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-b border-sky-500/20 z-50 px-4 md:px-8 py-3 flex flex-wrap items-center justify-between shadow-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 text-xl font-bold">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight">Arduino LDR & Potenciómetro</h1>
+                <p class="text-xs text-slate-400">Plataforma Interactiva & Presentador</p>
+            </div>
+        </div>
+
+        <nav class="flex items-center gap-1 md:gap-2 my-2 sm:my-0">
+            <button onclick="switchTab('tab-sim')" id="btn-tab-sim" class="tab-btn active px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-slate-300 hover:text-white">
+                <i class="fa-solid fa-flask"></i> <span>Simulador & Lab</span>
+            </button>
+            <button onclick="switchTab('tab-slides')" id="btn-tab-slides" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 text-slate-300 hover:text-white">
+                <i class="fa-solid fa-file-powerpoint"></i> <span>Presentación (12)</span>
+            </button>
+        </nav>
+
+        <button onclick="exportToPPTX()" class="btn-download-pptx bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs md:text-sm px-5 py-2.5 rounded-full shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center gap-2 transition-all transform hover:-translate-y-0.5">
+            <i class="fa-solid fa-file-arrow-down text-base"></i>
+            <span>DESCARGAR PPTX (.pptx)</span>
+        </button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-7xl px-4 md:px-8 mt-24 mb-12">
+
+        <!-- TAB 1: SIMULADOR INTERACTIVO -->
+        <section id="tab-sim" class="space-y-8">
+            <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold mb-3">
+                            <i class="fa-solid fa-bolt"></i> Laboratorio Interactivo en Tiempo Real
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white">Simulador de Control de Luz</h2>
+                        <p class="text-slate-300 text-sm md:text-base mt-2 max-w-3xl leading-relaxed">
+                            Mueve la perilla del potenciómetro para definir el límite deseado y desliza la luz ambiente para ver cómo responde el sistema activando el LED Verde o el LED Rojo.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 shrink-0">
+                        <div class="text-center">
+                            <p class="text-xs text-slate-400 font-medium">LED Rojo (Falta Luz)</p>
+                            <div id="sim-led-red" class="led-indicator led-red-off mx-auto mt-2"></div>
+                            <span id="txt-red-state" class="text-xs font-mono-code font-bold text-red-400 block mt-1">LOW (0V)</span>
+                        </div>
+                        <div class="h-10 w-px bg-slate-700 mx-2"></div>
+                        <div class="text-center">
+                            <p class="text-xs text-slate-400 font-medium">LED Verde (Buena Luz)</p>
+                            <div id="sim-led-green" class="led-indicator led-green-off mx-auto mt-2"></div>
+                            <span id="txt-green-state" class="text-xs font-mono-code font-bold text-emerald-400 block mt-1">LOW (0V)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between gap-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-sky-400"></i> Controles de Entrada
+                        </h3>
+
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700/50 mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-notch text-purple-400"></i> Límite deseado / Perilla (A1)
+                                </label>
+                                <span id="val-pot" class="font-mono-code font-bold text-purple-400 text-sm bg-purple-950/60 border border-purple-500/40 px-2 py-0.5 rounded">512</span>
+                            </div>
+                            <input type="range" id="slider-pot" min="0" max="1023" value="512" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500" oninput="updateSimulation()">
+                        </div>
+
+                        <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700/50">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-sun text-amber-400"></i> Luz Ambiental / Sensor LDR (A0)
+                                </label>
+                                <span id="val-ldr" class="font-mono-code font-bold text-amber-400 text-sm bg-amber-950/60 border border-amber-500/40 px-2 py-0.5 rounded">300</span>
+                            </div>
+                            <input type="range" id="slider-ldr" min="0" max="1023" value="300" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-400" oninput="updateSimulation()">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Probar Escenarios</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setScenario(200, 600)" class="px-3 py-2 bg-red-950/40 hover:bg-red-900/50 border border-red-500/30 rounded-lg text-xs font-semibold text-red-300 text-left transition-all">
+                                <i class="fa-solid fa-moon text-red-400 mr-1"></i> Entorno Oscuro
+                            </button>
+                            <button onclick="setScenario(750, 400)" class="px-3 py-2 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 rounded-lg text-xs font-semibold text-emerald-300 text-left transition-all">
+                                <i class="fa-solid fa-sun text-emerald-400 mr-1"></i> Entorno Iluminado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-sky-400"></i> Señal en Tiempo Real
+                            </h3>
+                            <span class="text-xs bg-sky-950 border border-sky-500/30 text-sky-300 px-2.5 py-1 rounded-full font-mono-code">Chart.js</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="realtimeSignalChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                        <span id="chart-status-text" class="font-bold text-sky-400">Monitoreo activo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-code text-pink-400"></i> Código C++ Ejecutado
+                    </h3>
+                    <div class="code-box text-xs leading-relaxed font-mono-code overflow-x-auto">
+<span class="code-keyword">int</span> <span class="code-var">Power</span> = <span class="code-keyword">analogRead</span>(<span class="code-num">A1</span>);
+<span class="code-keyword">int</span> <span class="code-var">inputLDR</span> = <span class="code-keyword">analogRead</span>(<span class="code-num">A0</span>);
+
+<span class="code-keyword">if</span> (inputLDR &lt; Power) {
+  <span class="code-keyword">digitalWrite</span>(RedLED, HIGH);
+  <span class="code-keyword">digitalWrite</span>(GreenLED, LOW);
+} <span class="code-keyword">else</span> {
+  <span class="code-keyword">digitalWrite</span>(RedLED, LOW);
+  <span class="code-keyword">digitalWrite</span>(GreenLED, HIGH);
+}
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-terminal text-emerald-400"></i> Monitor Serie
+                            </h3>
+                            <button onclick="clearTerminal()" class="text-xs text-slate-400 hover:text-white bg-slate-700/50 px-2.5 py-1 rounded">Limpiar</button>
+                        </div>
+                        <div id="serial-terminal" class="bg-black/90 border border-slate-700 rounded-xl p-4 font-mono-code text-xs text-emerald-400 h-44 overflow-y-auto custom-scroll space-y-1">
+                            <p class="text-slate-500">[SISTEMA] Conectado a Arduino UNO a 9600 baudios...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- TAB 2: PRESENTACIÓN DE 12 DIAPOSITIVAS -->
+        <section id="tab-slides" class="hidden space-y-6">
+            
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 backdrop-blur-md shadow-xl">
+                <div class="flex items-center gap-3">
+                    <button onclick="prevSlide()" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-sm text-white transition-colors flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-chevron-left"></i> Anterior
+                    </button>
+                    <button onclick="nextSlide()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 rounded-xl font-bold text-sm text-white transition-colors flex items-center gap-2 shadow-md">
+                        Siguiente <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-slate-400 font-medium">Ir a Diapositiva:</span>
+                    <select id="slide-select" onchange="goToSlide(this.value)" class="bg-slate-900 border border-slate-700 text-sky-400 font-bold text-xs px-3.5 py-2.5 rounded-xl focus:outline-none focus:border-sky-500 shadow-inner">
+                    </select>
+                    <span id="slide-indicator" class="text-xs font-mono-code text-slate-300 bg-slate-900 px-3.5 py-2.5 rounded-xl border border-slate-700">Diapositiva 1 / 12</span>
+                </div>
+            </div>
+
+            <div class="presentation-container">
+
+                <button onclick="prevSlide()" class="nav-btn-integrated nav-btn-left" title="Diapositiva Anterior">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button onclick="nextSlide()" class="nav-btn-integrated nav-btn-right" title="Diapositiva Siguiente">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <!-- DIAPOSITIVA 1: PORTADA -->
+                <div class="slide-card active-slide justify-center items-center text-center" id="slide-1">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold text-xs mb-6">
+                        <i class="fa-solid fa-microchip"></i> PROYECTO DE ARDUINO Y HARDWARE
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black text-white leading-tight mb-4 tracking-tight">
+                        FOTOCELDA Y POTENCIÓMETRO<br><span class="text-sky-400">CON ARDUINO UNO</span>
+                    </h1>
+                    <p class="text-base md:text-lg text-slate-300 max-w-3xl mb-8 leading-relaxed">
+                        Sistema Inteligente de Control Lumínico Automático con Umbral Regulable
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl bg-slate-900/70 border border-slate-700/60 rounded-2xl p-6 text-left shadow-2xl">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">INTEGRANTES DEL EQUIPO</p>
+                            <p class="text-sm text-slate-100 font-semibold mb-1.5"><i class="fa-solid fa-user text-sky-400 mr-2"></i>Christopher Addiel Rodriguez Mendez</p>
+                            <p class="text-sm text-slate-100 font-semibold"><i class="fa-solid fa-user text-sky-400 mr-2"></i>Sergio Alejandro Vasquez Benitez</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2">INSTITUCIÓN Y CATEDRÁTICO</p>
+                            <p class="text-xs text-slate-300 mb-1"><strong class="text-white">Docente:</strong> Williams Fredy Aguilar Perez</p>
+                            <p class="text-xs text-slate-300 mb-1"><strong class="text-white">Universidad:</strong> Dr. José Matías Delgado</p>
+                            <p class="text-xs text-slate-400"><strong class="text-white">Fecha:</strong> 31/08/2026</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 2: ¿DE QUÉ TRATA EL PROYECTO? -->
+                <div class="slide-card" id="slide-2">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-circle-info text-sky-400"></i> ¿De qué trata este Proyecto?
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto">
+                        <div class="lg:col-span-7 space-y-4 text-slate-300 text-sm leading-relaxed">
+                            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/60 shadow-md">
+                                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-lightbulb text-amber-400"></i> Control de Luz Inteligente
+                                </h3>
+                                <p>
+                                    Este proyecto consiste en crear un sistema automático que mide continuamente la luz que hay a su alrededor y toma la decisión de encender o apagar luces según las necesidades del ambiente.
+                                </p>
+                            </div>
+
+                            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/60 shadow-md">
+                                <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-sliders text-purple-400"></i> Ajuste Personalizado con Perilla
+                                </h3>
+                                <p>
+                                    Permite a cualquier persona definir manualmente en qué punto exacto desea que se encienda la luz girando el potenciómetro, sin necesidad de reprogramar el Arduino.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-slate-900/80 border border-slate-700/70 rounded-2xl p-6 flex flex-col justify-center items-center text-center">
+                            <i class="fa-solid fa-city text-sky-400 text-5xl mb-4"></i>
+                            <h3 class="text-base font-bold text-white mb-2">¿Dónde se aplica?</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Se utiliza en alumbrado público, focos automáticos de jardín, pasillos e invernaderos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 3: OBJETIVOS -->
+                <div class="slide-card" id="slide-3">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-bullseye text-sky-400"></i> Objetivos del Proyecto
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
+                        <div class="bg-slate-800/80 p-6 rounded-2xl border-l-4 border-sky-400 border-slate-700/60 shadow-lg">
+                            <div class="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-2xl mb-4">
+                                <i class="fa-solid fa-compass"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Objetivo General</h3>
+                            <p class="text-sm text-slate-200 leading-relaxed">
+                                Crear un sistema automático con Arduino que encienda una luz verde si hay suficiente luz ambiental o una luz roja si está oscuro, permitiendo ajustar fácilmente el nivel deseado con una perilla.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check"></i> Objetivos Específicos
+                            </h3>
+                            <ul class="space-y-3 text-sm text-slate-300">
+                                <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                    <i class="fa-solid fa-circle-check text-amber-400 mt-1"></i>
+                                    <span><strong>1. Medir luz ambiental:</strong> Usar una fotocelda LDR para conocer el nivel de luz en tiempo real.</span>
+                                </li>
+                                <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                    <i class="fa-solid fa-circle-check text-purple-400 mt-1"></i>
+                                    <span><strong>2. Calibrar umbral:</strong> Usar un potenciómetro para regular el punto de activación.</span>
+                                </li>
+                                <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+                                    <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
+                                    <span><strong>3. Responder con precisión:</strong> Activar LED Verde con luz alta y LED Rojo con falta de luz.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 4: FOTOS Y EXPLICACIÓN DETALLADA DE SENSORES -->
+                <div class="slide-card" id="slide-4">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-camera text-sky-400"></i> Componentes Clave: Fotocelda y Potenciómetro
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-auto">
+                        <!-- Potenciómetro -->
+                        <div class="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                            <div>
+                                <div class="w-full h-44 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center p-2 mb-4 border border-purple-500/20">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Potentiometer.jpg/330px-Potentiometer.jpg" alt="Potenciómetro" class="h-full object-contain hover:scale-105 transition-transform duration-300">
+                                </div>
+                                <h3 class="text-xl font-bold text-purple-400 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-sliders"></i> Potenciómetro (10kΩ)
+                                </h3>
+                                <p class="text-xs text-slate-300 leading-relaxed text-justify">
+                                    <strong>¿Qué es y cómo funciona?</strong> Es una resistencia variable manual con perilla giratoria. Al girarla, cambia la cantidad de corriente que deja pasar y envía un voltaje variable de 0V a 5V al pin analógico <code class="bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded font-mono-code">A1</code>.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-purple-500/20 bg-purple-950/20 p-3 rounded-xl border">
+                                <p class="text-xs text-purple-200">
+                                    <strong>Función en el proyecto:</strong> Actúa como el <strong>control manual de sensibilidad</strong>. Permite ajustar qué tan oscuro debe estar el lugar para encender el LED Rojo sin modificar el programa.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Fotocelda LDR -->
+                        <div class="bg-slate-900/80 border border-amber-500/30 rounded-2xl p-6 flex flex-col justify-between shadow-xl">
+                            <div>
+                                <div class="w-full h-44 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center p-2 mb-4 border border-amber-500/20">
+                                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqUN0LuOpNeCKssv-Uy-sO8pZYyzRDU5JEKO-MV_Uhr_5XCA536_J0Z_Qa&s=10" alt="Fotocelda LDR" class="h-full object-contain hover:scale-105 transition-transform duration-300">
+                                </div>
+                                <h3 class="text-xl font-bold text-amber-400 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-sun"></i> Fotocelda (Sensor LDR)
+                                </h3>
+                                <p class="text-xs text-slate-300 leading-relaxed text-justify">
+                                    <strong>¿Qué es y cómo funciona?</strong> Es una resistencia dependiente de la luz (LDR). Cuando hay mucha luz en la habitación, su resistencia baja; cuando oscurece, su resistencia sube exponencialmente. Envía esta medición real al pin <code class="bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded font-mono-code">A0</code>.
+                                </p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-amber-500/20 bg-amber-950/20 p-3 rounded-xl border">
+                                <p class="text-xs text-amber-200">
+                                    <strong>Función en el proyecto:</strong> Es el <strong>"ojo" del sistema</strong>. Mide continuamente la iluminación del ambiente en tiempo real para ser comparada contra el límite de la perilla.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 5: ELEMENTOS USADOS DETALLADOS -->
+                <div class="slide-card" id="slide-5">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-microchip text-sky-400"></i> Elementos Usados Explicados Fácil y Claro
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 my-auto">
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-sky-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm shrink-0">1</span>
+                                    <h3 class="font-bold text-white text-sm">Arduino UNO</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>El cerebro central:</strong> Microcontrolador programable que lee el sensor de luz y el potenciómetro, toma las decisiones y enciende las luces correspondientes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-amber-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">2</span>
+                                    <h3 class="font-bold text-white text-sm">Fotocelda (LDR)</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>El detector de claridad:</strong> Sensor fotoeléctrico que lee la cantidad de luz disponible y la convierte en un número analógico entre 0 y 1023.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-purple-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm shrink-0">3</span>
+                                    <h3 class="font-bold text-white text-sm">Potenciómetro (10kΩ)</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>La perilla de control:</strong> Permite establecer de forma directa e intuitiva en qué punto de luz deseamos que se activen o desactiven los LEDs.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-red-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center font-bold text-sm shrink-0">4</span>
+                                    <h3 class="font-bold text-white text-sm">LED Rojo</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>Aviso de falta de luz:</strong> Se ilumina de color rojo cuando la luz captada por la fotocelda es menor al nivel fijado en la perilla (hace falta luz).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-emerald-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">5</span>
+                                    <h3 class="font-bold text-white text-sm">LED Verde</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>Aviso de luz suficiente:</strong> Se ilumina de color verde cuando el ambiente tiene suficiente claridad igual o mayor a la configurada.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-indigo-500/30 shadow-lg flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">6</span>
+                                    <h3 class="font-bold text-white text-sm">Resistencias y Protoboard</h3>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">
+                                    <strong>Protección y cables:</strong> Las resistencias (220Ω y 10kΩ) evitan que los LEDs se quemen por exceso de corriente y aseguran lecturas limpias del sensor.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 6: LÓGICA Y CÓDIGO ARDUINO -->
+                <div class="slide-card" id="slide-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-code text-sky-400"></i> Lógica y Código Arduino
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto">
+                        <div class="lg:col-span-7">
+                            <div class="code-box text-xs leading-relaxed">
+<span class="code-comment">// 1. Leer los pines analógicos A0 y A1</span>
+<span class="code-keyword">int</span> <span class="code-var">Power</span> = <span class="code-keyword">analogRead</span>(<span class="code-num">A1</span>); <span class="code-comment">// Lectura de perilla</span>
+<span class="code-keyword">int</span> <span class="code-var">inputLDR</span> = <span class="code-keyword">analogRead</span>(<span class="code-num">A0</span>); <span class="code-comment">// Lectura de luz</span>
+
+<span class="code-comment">// 2. Tomar decisión con estructura IF</span>
+<span class="code-keyword">if</span> (inputLDR &lt; Power) {
+  <span class="code-keyword">digitalWrite</span>(RedLED, HIGH);   <span class="code-comment">// Falta luz: Enciende Rojo</span>
+  <span class="code-keyword">digitalWrite</span>(GreenLED, LOW);  <span class="code-comment">// Apaga Verde</span>
+} <span class="code-keyword">else</span> {
+  <span class="code-keyword">digitalWrite</span>(RedLED, LOW);    <span class="code-comment">// Buena luz: Apaga Rojo</span>
+  <span class="code-keyword">digitalWrite</span>(GreenLED, HIGH); <span class="code-comment">// Enciende Verde</span>
+}
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-5 space-y-4 text-xs text-slate-300">
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                                <h4 class="font-bold text-sky-400 text-sm mb-1"><i class="fa-solid fa-glasses mr-2"></i> ¿Cómo Funciona?</h4>
+                                <p class="leading-relaxed">
+                                    El programa compara la luz leída por el sensor con el valor de la perilla. Si la luz es menor al número de la perilla, enciende el LED Rojo.
+                                </p>
+                            </div>
+
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                                <h4 class="font-bold text-emerald-400 text-sm mb-1"><i class="fa-solid fa-bolt mr-2"></i> Dinámico</h4>
+                                <p class="leading-relaxed">
+                                    Al girar el potenciómetro en la vida real, cambias el umbral al instante sin reiniciar el programa.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 7: SIMULADOR LAB DE LA PÁGINA WEB -->
+                <div class="slide-card" id="slide-7">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-flask text-sky-400"></i> Simulador Lab Integrado en la Web
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto">
+                        <div class="lg:col-span-6 space-y-4 text-slate-300 text-xs md:text-sm leading-relaxed">
+                            <div class="bg-slate-800/90 p-5 rounded-2xl border border-sky-500/30 shadow-lg">
+                                <h3 class="text-base font-bold text-sky-400 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-laptop-code"></i> ¿Qué es el Simulador Lab de la Web?
+                                </h3>
+                                <p>
+                                    Es una plataforma virtual interactiva integrada directamente en la pestaña superior <strong class="text-white">'Simulador & Lab'</strong> de este sitio web. Permite experimentar en tiempo real con la respuesta del microcontrolador sin necesidad de hardware físico.
+                                </p>
+                            </div>
+
+                            <div class="bg-slate-800/90 p-5 rounded-2xl border border-purple-500/30 shadow-lg">
+                                <h3 class="text-base font-bold text-purple-400 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line"></i> Gráfica en Tiempo Real y Monitor Serie
+                                </h3>
+                                <p>
+                                    Incluye una gráfica en vivo generada mediante Chart.js que dibuja la onda de luz LDR (A0) frente al umbral del potenciómetro (A1), además de una consola interactiva que simula la comunicación Serie a 9600 baudios.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 flex flex-col justify-between">
+                            <h3 class="text-base font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-list-ol"></i> Instrucciones de Uso Paso a Paso
+                            </h3>
+                            <ul class="space-y-3 text-xs text-slate-200">
+                                <li class="bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 flex items-start gap-3">
+                                    <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center shrink-0">1</span>
+                                    <span><strong>Ir al Simulador:</strong> Haz clic en el botón <em>"Simulador & Lab"</em> ubicado en la barra de navegación superior.</span>
+                                </li>
+                                <li class="bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 flex items-start gap-3">
+                                    <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center shrink-0">2</span>
+                                    <span><strong>Ajustar Perilla (A1):</strong> Mueve el slider del potenciómetro para fijar el punto de referencia (0 a 1023).</span>
+                                </li>
+                                <li class="bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 flex items-start gap-3">
+                                    <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center shrink-0">3</span>
+                                    <span><strong>Simular Luz Ambiental (A0):</strong> Desliza la intensidad de luz LDR para verificar el cambio de estados en los LEDs.</span>
+                                </li>
+                                <li class="bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 flex items-start gap-3">
+                                    <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">4</span>
+                                    <span><strong>Observar Diagnóstico:</strong> Visualiza en directo la conmutación instantánea entre LED Rojo y LED Verde.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 8: SIMULADOR TINKERCAD CON IMAGEN INCORPORADA -->
+                <div class="slide-card justify-center items-center text-center" id="slide-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-xs mb-3">
+                        <i class="fa-solid fa-cube"></i> SIMULACIÓN DE HARDWARE VIRTUAL
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-black text-white mb-2">
+                        Prueba del Circuito en Tinkercad
+                    </h2>
+                    <p class="text-xs md:text-sm text-slate-300 max-w-2xl mb-4 leading-relaxed">
+                        Captura real de las pruebas del circuito donde validamos la conmutación de los LEDs y las lecturas analógicas del potenciómetro y fotocelda.
+                    </p>
+
+                    <!-- IMAGEN DEL SIMULADOR TINKERCAD -->
+                    <div class="w-full max-w-3xl rounded-2xl overflow-hidden border border-sky-500/40 shadow-2xl mb-5 group relative bg-slate-900/90 p-2">
+                        <img src="Screenshot 2026-08-28 182152.png" 
+                             alt="Captura de Prueba del Circuito en Tinkercad" 
+                             class="w-full h-auto max-h-[310px] object-contain rounded-xl hover:scale-[1.02] transition-transform duration-300 mx-auto"
+                             onerror="this.onerror=null; this.src='file:///C:/Users/PC%20HP/Downloads/Screenshot%202026-08-28%20182152.png';">
+                        <div class="mt-2 text-center text-xs text-slate-400 font-mono-code">
+                            <i class="fa-solid fa-image text-sky-400 mr-1"></i> Screenshot 2026-08-28 — Entorno de Pruebas Tinkercad
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 max-w-3xl w-full shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="text-left">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-laptop-code text-sky-400"></i> Abrir Proyecto Interactivo
+                            </h3>
+                            <p class="text-xs text-slate-400">Accede directamente a la maqueta interactiva virtual en Autodesk Tinkercad.</p>
+                        </div>
+                        
+                        <a href="https://www.tinkercad.com/things/7HAPNK5E0aT-proyecto-1ghc-con-arduino/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-xs px-6 py-3 rounded-xl shadow-lg shadow-sky-500/30 transition-all transform hover:scale-105 border border-sky-300/30">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                            <span>ABRIR EN TINKERCAD</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 9: REFERENCIAS BIBLIOGRÁFICAS -->
+                <div class="slide-card" id="slide-9">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-book-bookmark text-sky-400"></i> Referencias Bibliográficas
+                    </h2>
+                    <div class="space-y-4 my-auto max-w-4xl mx-auto w-full">
+                        <a href="https://docs.arduino.cc/" target="_blank" class="block bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl hover:border-sky-500 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sky-400 text-sm group-hover:underline"><i class="fa-solid fa-link mr-2"></i> Documentación Oficial de Arduino</span>
+                                <span class="text-xs text-slate-400">docs.arduino.cc</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Manuales de referencia de hardware y funciones del microcontrolador Arduino UNO.</p>
+                        </a>
+
+                        <a href="https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/" target="_blank" class="block bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl hover:border-sky-500 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-purple-400 text-sm group-hover:underline"><i class="fa-solid fa-link mr-2"></i> Referencia del Lenguaje C++ Arduino (analogRead)</span>
+                                <span class="text-xs text-slate-400">arduino.cc</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Especificaciones técnicas para lectura de entradas analógicas (A0-A5).</p>
+                        </a>
+
+                        <a href="https://www.tinkercad.com/circuits" target="_blank" class="block bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl hover:border-sky-500 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-emerald-400 text-sm group-hover:underline"><i class="fa-solid fa-link mr-2"></i> Autodesk Tinkercad Circuits</span>
+                                <span class="text-xs text-slate-400">tinkercad.com</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Entorno de simulación virtual de circuitos electrónicos y programación de Arduino.</p>
+                        </a>
+
+                        <a href="https://www.allaboutcircuits.com/textbook/direct-current/chpt-3/potentiometers/" target="_blank" class="block bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl hover:border-sky-500 transition-all group">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-amber-400 text-sm group-hover:underline"><i class="fa-solid fa-link mr-2"></i> All About Circuits — Potentiometers & Sensors</span>
+                                <span class="text-xs text-slate-400">allaboutcircuits.com</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-1">Fundamentos teóricos sobre divisores de tensión, potenciómetros y fotorresistencias.</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 10: USO DE INTELIGENCIA ARTIFICIAL -->
+                <div class="slide-card" id="slide-10">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white border-b border-sky-500/30 pb-3 mb-6 flex items-center gap-3">
+                        <i class="fa-solid fa-robot text-sky-400"></i> Declaración del Uso de IAs
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+                        <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-lg space-y-3">
+                            <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Asistencia en la Estructura y Código
+                            </h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Se utilizó la asistencia de Modelos de Inteligencia Artificial Generativa (LLM) para el diseño responsivo de la interfaz web (HTML5/Tailwind CSS) y la optimización del código en JavaScript para la generación automática del archivo de PowerPoint (.pptx).
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-lg space-y-3">
+                            <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-user-check"></i> Verificación Humana
+                            </h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                El diseño del circuito en Tinkercad, la lógica del programa Arduino, las conexiones físicas y la redacción final del documento fueron supervisados, probados y validados por el equipo técnico del proyecto.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 11: CONCLUSIONES -->
+                <div class="slide-card justify-center items-center text-center" id="slide-11">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-6">
+                        Conclusiones del Proyecto
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl text-left mb-6">
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/60 shadow-lg">
+                            <h3 class="text-base font-bold text-sky-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-check-circle"></i> Eficiencia y Automatización
+                            </h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Logramos construir un sistema económico que responde de manera rápida y precisa a los cambios de iluminación sin intervención humana continua.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/60 shadow-lg">
+                            <h3 class="text-base font-bold text-emerald-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders"></i> Calibración Dinámica
+                            </h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                La incorporación del potenciómetro permite adaptar la sensibilidad del circuito a cualquier ambiente sin necesidad de modificar el código.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAPOSITIVA 12: FINAL Y APLAUSOS DE DISNEY (MYINSTANTS) -->
+                <div class="slide-card justify-center items-center text-center" id="slide-12">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-xs mb-6">
+                        <i class="fa-solid fa-star"></i> PRESENTACIÓN FINALIZADA
+                    </div>
+                    <h1 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
+                        ¡MUCHAS GRACIAS!
+                    </h1>
+                    <p class="text-slate-300 text-base max-w-md mb-8">
+                        ¿Tienen alguna pregunta o comentario sobre el circuito o el código?
+                    </p>
+
+                    <!-- Botón de Aplausos con audio de Disney (MyInstants) -->
+                    <button id="btn-applause" onclick="playApplause()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-lg px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 border border-amber-300 flex items-center gap-3 transition-all transform hover:scale-110 active:scale-95 cursor-pointer">
+                        <span class="text-2xl" id="applause-icon">👏</span>
+                        <span id="applause-text">REPRODUCIR APLAUSOS</span>
+                    </button>
+                    <p class="text-xs text-amber-400/80 mt-3 font-mono-code" id="applause-status">Audio de Aplausos Disney (MyInstants)</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        const TOTAL_SLIDES = 12;
+        let currentSlide = 1;
+        let realtimeChart = null;
+        let chartTime = 0;
+        let applauseAudio = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initSlideSelectOptions();
+            initRealtimeChart();
+            updateSimulation();
+        });
+
+        function switchTab(tabId) {
+            document.getElementById('tab-sim').classList.add('hidden');
+            document.getElementById('tab-slides').classList.add('hidden');
+            document.getElementById('btn-tab-sim').classList.remove('active');
+            document.getElementById('btn-tab-slides').classList.remove('active');
+
+            if (tabId === 'tab-sim') {
+                document.getElementById('tab-sim').classList.remove('hidden');
+                document.getElementById('btn-tab-sim').classList.add('active');
+            } else {
+                document.getElementById('tab-slides').classList.remove('hidden');
+                document.getElementById('btn-tab-slides').classList.add('active');
+            }
+        }
+
+        function initSlideSelectOptions() {
+            const select = document.getElementById('slide-select');
+            select.innerHTML = '';
+            
+            const slideTitles = [
+                "1. Portada del Proyecto",
+                "2. ¿De qué trata el Proyecto?",
+                "3. Objetivos del Proyecto",
+                "4. Fotocelda y Potenciómetro (Detalles)",
+                "5. Elementos Usados y Funciones",
+                "6. Lógica y Código Arduino",
+                "7. Simulador Lab de la Web",
+                "8. Simulador Tinkercad (Screenshot)",
+                "9. Referencias Bibliográficas",
+                "10. Declaración Uso de IA",
+                "11. Conclusiones",
+                "12. ¡Muchas Gracias! (Aplausos Disney)"
+            ];
+
+            for (let i = 1; i <= TOTAL_SLIDES; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = slideTitles[i-1] || `Diapositiva ${i}`;
+                select.appendChild(opt);
+            }
+            updateSlideView();
+        }
+
+        function nextSlide() {
+            if (currentSlide < TOTAL_SLIDES) {
+                currentSlide++;
+                updateSlideView();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideView();
+            }
+        }
+
+        function goToSlide(slideNum) {
+            currentSlide = parseInt(slideNum);
+            updateSlideView();
+        }
+
+        function updateSlideView() {
+            for (let i = 1; i <= TOTAL_SLIDES; i++) {
+                const card = document.getElementById(`slide-${i}`);
+                if (card) {
+                    if (i === currentSlide) {
+                        card.classList.add('active-slide');
+                    } else {
+                        card.classList.remove('active-slide');
+                    }
+                }
+            }
+            document.getElementById('slide-select').value = currentSlide;
+            document.getElementById('slide-indicator').textContent = `Diapositiva ${currentSlide} / ${TOTAL_SLIDES}`;
+        }
+
+        function updateSimulation() {
+            const ldrVal = parseInt(document.getElementById('slider-ldr').value);
+            const potVal = parseInt(document.getElementById('slider-pot').value);
+
+            document.getElementById('val-ldr').textContent = ldrVal;
+            document.getElementById('val-pot').textContent = potVal;
+
+            const redLed = document.getElementById('sim-led-red');
+            const greenLed = document.getElementById('sim-led-green');
+            const txtRed = document.getElementById('txt-red-state');
+            const txtGreen = document.getElementById('txt-green-state');
+            const statusText = document.getElementById('chart-status-text');
+
+            let redState = false;
+            let greenState = false;
+
+            if (ldrVal < potVal) {
+                redState = true;
+                redLed.className = 'led-indicator led-red-on mx-auto mt-2';
+                greenLed.className = 'led-indicator led-green-off mx-auto mt-2';
+                txtRed.textContent = 'HIGH (5V)';
+                txtGreen.textContent = 'LOW (0V)';
+                statusText.textContent = 'ESTADO: Falta Luz (LED Rojo ON)';
+                statusText.className = 'font-bold text-red-400';
+            } else {
+                greenState = true;
+                redLed.className = 'led-indicator led-red-off mx-auto mt-2';
+                greenLed.className = 'led-indicator led-green-on mx-auto mt-2';
+                txtRed.textContent = 'LOW (0V)';
+                txtGreen.textContent = 'HIGH (5V)';
+                statusText.textContent = 'ESTADO: Buena Luz (LED Verde ON)';
+                statusText.className = 'font-bold text-emerald-400';
+            }
+
+            const terminal = document.getElementById('serial-terminal');
+            const p = document.createElement('p');
+            p.textContent = `[ADC] LDR: ${ldrVal} | PERILLA: ${potVal} => ROJO: ${redState ? 'HIGH' : 'LOW'}, VERDE: ${greenState ? 'HIGH' : 'LOW'}`;
+            terminal.appendChild(p);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            if (realtimeChart) {
+                chartTime += 1;
+                realtimeChart.data.labels.push(`${chartTime}s`);
+                realtimeChart.data.datasets[0].data.push(ldrVal);
+                realtimeChart.data.datasets[1].data.push(potVal);
+
+                if (realtimeChart.data.labels.length > 15) {
+                    realtimeChart.data.labels.shift();
+                    realtimeChart.data.datasets[0].data.shift();
+                    realtimeChart.data.datasets[1].data.shift();
+                }
+                realtimeChart.update('none');
+            }
+        }
+
+        function setScenario(ldr, pot) {
+            document.getElementById('slider-ldr').value = ldr;
+            document.getElementById('slider-pot').value = pot;
+            updateSimulation();
+        }
+
+        function clearTerminal() {
+            document.getElementById('serial-terminal').innerHTML = '<p class="text-slate-500">[SISTEMA] Terminal limpiado...</p>';
+        }
+
+        function initRealtimeChart() {
+            const ctx = document.getElementById('realtimeSignalChart').getContext('2d');
+            realtimeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Luz LDR (A0)',
+                            data: [],
+                            borderColor: '#fbbf24',
+                            backgroundColor: 'rgba(251, 191, 36, 0.15)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35
+                        },
+                        {
+                            label: 'Límite Potenciómetro (A1)',
+                            data: [],
+                            borderColor: '#c084fc',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 1023, grid: { color: 'rgba(255, 255, 255, 0.08)' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // REPRODUCCIÓN DEL AUDIO DE APLAUSOS DE DISNEY (MYINSTANTS)
+        function playApplause() {
+            const btnText = document.getElementById('applause-text');
+            const btnIcon = document.getElementById('applause-icon');
+            const statusTxt = document.getElementById('applause-status');
+
+            if (applauseAudio) {
+                applauseAudio.pause();
+                applauseAudio.currentTime = 0;
+            }
+
+            btnText.textContent = "¡APLAUDIENDO! 👏";
+            btnIcon.className = "text-2xl animate-bounce";
+            statusTxt.textContent = "Cargando y reproduciendo Disney Applause...";
+
+            applauseAudio = new Audio("https://www.myinstants.com/media/sounds/disney-applause.mp3");
+
+            applauseAudio.play().then(() => {
+                statusTxt.textContent = "Reproduciendo aplausos de Disney...";
+            }).catch(err => {
+                console.warn("Reintentando con enlace alternativo...", err);
+                applauseAudio = new Audio("https://www.myinstants.com/media/sounds/disney-applause-6448.mp3");
+                applauseAudio.play().catch(e => {
+                    console.error("Error al reproducir el audio:", e);
+                    statusTxt.textContent = "Haz clic de nuevo si tu navegador bloqueó el audio.";
+                    btnText.textContent = "REPRODUCIR APLAUSOS";
+                    btnIcon.className = "text-2xl";
+                });
+            });
+
+            applauseAudio.onended = () => {
+                btnText.textContent = "REPRODUCIR APLAUSOS";
+                btnIcon.className = "text-2xl";
+                statusTxt.textContent = "Aplausos finalizados. ¡Haz clic para repetir!";
+            };
+        }
+
+        // GENERADOR PPTX CORREGIDO (12 DIAPOSITIVAS)
+        function exportToPPTX() {
+            try {
+                if (typeof PptxGenJS === 'undefined') {
+                    alert("La librería PPTX se está cargando. Por favor presiona el botón nuevamente.");
+                    return;
+                }
+
+                let pptx = new PptxGenJS();
+                pptx.layout = 'LAYOUT_16x9';
+
+                const BG_COLOR = "0F172A";
+                const CARD_BG = "1E293B";
+                const COLOR_AZUL = "38BDF8";
+                const COLOR_VERDE = "10B981";
+                const COLOR_MORADO = "C084FC";
+                const COLOR_AMARILLO = "FBBF24";
+                const COLOR_TEXTO = "F1F5F9";
+                const COLOR_SUBTEXTO = "94A3B8";
+
+                function addHeader(slide, titleText) {
+                    slide.background = { color: BG_COLOR };
+                    slide.addText(titleText, {
+                        x: 0.8, y: 0.5, w: 11.7, h: 0.7,
+                        fontFace: "Montserrat", fontSize: 24, bold: true, color: COLOR_AZUL
+                    });
+                    slide.addShape(pptx.shapes.RECTANGLE, {
+                        x: 0.8, y: 1.25, w: 11.73, h: 0.03, fill: { color: COLOR_AZUL }
+                    });
+                }
+
+                // DIAPOSITIVA 1
+                let s1 = pptx.addSlide();
+                s1.background = { color: BG_COLOR };
+                s1.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_AZUL } });
+                
+                s1.addText("FOTOCELDA Y POTENCIÓMETRO CON ARDUINO", {
+                    x: 1.0, y: 1.8, w: 11.33, h: 1.0,
+                    fontFace: "Montserrat", fontSize: 32, bold: true, color: COLOR_AZUL, align: "center"
+                });
+                s1.addText("Sistema Inteligente de Control Lumínico Automático con Umbral Regulable", {
+                    x: 1.0, y: 2.9, w: 11.33, h: 0.6,
+                    fontFace: "Inter", fontSize: 16, color: COLOR_SUBTEXTO, align: "center"
+                });
+
+                s1.addShape(pptx.shapes.RECTANGLE, {
+                    x: 2.0, y: 4.0, w: 9.33, h: 2.4,
+                    fill: { color: CARD_BG }, line: { color: "334155", width: 1 }
+                });
+                s1.addText("Integrantes: Christopher Addiel Rodriguez Mendez & Sergio Alejandro Vasquez Benitez\nDocente: Williams Fredy Aguilar Perez\nUniversidad: Dr. José Matías Delgado | Fecha: 31/08/2026", {
+                    x: 2.2, y: 4.2, w: 8.93, h: 2.0,
+                    fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, align: "center", lineSpacing: 22
+                });
+
+                // DIAPOSITIVA 2
+                let s2 = pptx.addSlide();
+                addHeader(s2, "¿De qué trata este Proyecto?");
+                
+                s2.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 7.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s2.addText([
+                    { text: "Control de Luz Inteligente:\n", options: { bold: true, color: COLOR_AZUL, fontSize: 16 } },
+                    { text: "Mide continuamente la luz ambiental y toma la decisión automática de encender o apagar las luces según las necesidades del entorno.\n\n", options: { color: COLOR_TEXTO, fontSize: 13 } },
+                    { text: "Ajuste Personalizado con Perilla:\n", options: { bold: true, color: COLOR_MORADO, fontSize: 16 } },
+                    { text: "Permite calibrar de forma manual el umbral exacto de disparo mediante un potenciómetro, eliminando la necesidad de alterar el código del sistema.", options: { color: COLOR_TEXTO, fontSize: 13 } }
+                ], { x: 1.1, y: 1.9, w: 6.6, h: 4.6, fontFace: "Inter" });
+
+                s2.addShape(pptx.shapes.RECTANGLE, { x: 8.3, y: 1.6, w: 4.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s2.addText("¿Dónde se aplica?", { x: 8.5, y: 2.0, w: 3.8, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AMARILLO, align: "center" });
+                s2.addText("• Alumbrado público automatizado\n\n• Focos automáticos de jardín y cochera\n\n• Iluminación de pasillos de emergencia\n\n• Control lumínico en invernaderos", {
+                    x: 8.6, y: 2.8, w: 3.6, h: 3.6, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                // DIAPOSITIVA 3
+                let s3 = pptx.addSlide();
+                addHeader(s3, "Objetivos del Proyecto");
+
+                s3.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 2 } });
+                s3.addText("Objetivo General", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
+                s3.addText("Diseñar e implementar un sistema de control automático basado en Arduino UNO que regule la activación de luces indicadoras según la luz ambiental percibida por una fotocelda LDR, permitiendo ajustar fácilmente el punto de activación mediante una perilla reguladora.", {
+                    x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
+                });
+
+                s3.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s3.addText("Objetivos Específicos", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
+                s3.addText([
+                    { text: "1. Medir la luz ambiental:\n", options: { bold: true, color: COLOR_AMARILLO } },
+                    { text: "Utilizar un sensor LDR en la entrada A0 para monitorear la claridad en tiempo real.\n\n", options: { color: COLOR_SUBTEXTO } },
+                    { text: "2. Calibrar el umbral:\n", options: { bold: true, color: COLOR_MORADO } },
+                    { text: "Implementar un potenciómetro en A1 para ajustar la sensibilidad de activación.\n\n", options: { color: COLOR_SUBTEXTO } },
+                    { text: "3. Conmutación precisa:\n", options: { bold: true, color: COLOR_VERDE } },
+                    { text: "Activar el LED Verde con luz adecuada y encender el LED Rojo ante la falta de luz.", options: { color: COLOR_SUBTEXTO } }
+                ], { x: 7.1, y: 2.6, w: 5.1, h: 4.0, fontFace: "Inter", fontSize: 12 });
+
+                // DIAPOSITIVA 4
+                let s4 = pptx.addSlide();
+                addHeader(s4, "Componentes Clave: Potenciómetro y Fotocelda");
+
+                s4.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_MORADO, width: 1 } });
+                s4.addText("Potenciómetro (10kΩ)", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_MORADO });
+                s4.addText("• ¿Qué es?: Resistencia variable manual con perilla giratoria.\n\n• Funcionamiento: Modifica la tensión (0V a 5V) enviada al pin analógico A1 del Arduino.\n\n• Función en el Proyecto: Permite ajustar qué tan oscuro debe estar el entorno para encender la luz de aviso sin reprogramar.", {
+                    x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                s4.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AMARILLO, width: 1 } });
+                s4.addText("Fotocelda (Sensor LDR)", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AMARILLO });
+                s4.addText("• ¿Qué es?: Resistencia cuyo valor varía según la cantidad de claridad incidente.\n\n• Funcionamiento: A mayor luz, menor resistencia. Envía el valor procesado al pin analógico A0.\n\n• Función en el Proyecto: Actúa como el 'ojo' del circuito, leyendo continuamente la luz del entorno.", {
+                    x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                // DIAPOSITIVA 5
+                let s5 = pptx.addSlide();
+                addHeader(s5, "Elementos Usados Explicados Fácil y Claro");
+
+                const elementos = [
+                    { t: "1. Arduino UNO", d: "Microcontrolador central que procesa las entradas analógicas y conmuta los LEDs.", c: COLOR_AZUL },
+                    { t: "2. Sensor LDR", d: "Detector de luz ambiental que convierte la iluminación en valores (0 - 1023).", c: COLOR_AMARILLO },
+                    { t: "3. Potenciómetro", d: "Perilla manual de 10kΩ para regular el nivel exacto de disparo.", c: COLOR_MORADO },
+                    { t: "4. LED Rojo", d: "Indicador visual de advertencia cuando la luz es menor al umbral fijado.", c: "EF4444" },
+                    { t: "5. LED Verde", d: "Luz indicadora de estado óptimo cuando la claridad ambiental es suficiente.", c: COLOR_VERDE },
+                    { t: "6. Resistencias", d: "Resistencias de protección (220Ω / 10kΩ) para evitar daños en los pines.", c: COLOR_SUBTEXTO }
+                ];
+
+                elementos.forEach((el, idx) => {
+                    let row = Math.floor(idx / 3);
+                    let col = idx % 3;
+                    let posX = 0.8 + (col * 3.95);
+                    let posY = 1.6 + (row * 2.65);
+
+                    s5.addShape(pptx.shapes.RECTANGLE, { x: posX, y: posY, w: 3.8, h: 2.4, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                    s5.addText(el.t, { x: posX + 0.2, y: posY + 0.2, w: 3.4, h: 0.4, fontFace: "Montserrat", fontSize: 14, bold: true, color: el.c });
+                    s5.addText(el.d, { x: posX + 0.2, y: posY + 0.7, w: 3.4, h: 1.5, fontFace: "Inter", fontSize: 11, color: COLOR_TEXTO, lineSpacing: 16 });
+                });
+
+                // DIAPOSITIVA 6
+                let s6 = pptx.addSlide();
+                addHeader(s6, "Lógica y Código Arduino en C++");
+
+                s6.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 7.0, h: 5.2, fill: { color: "060911" }, line: { color: COLOR_AZUL, width: 1 } });
+                s6.addText("// 1. Leer entradas analógicas A0 y A1\nint Power = analogRead(A1);   // Perilla\nint inputLDR = analogRead(A0); // Sensor LDR\n\n// 2. Tomar decisión con estructura IF\nif (inputLDR < Power) {\n  digitalWrite(RedLED, HIGH);   // Falta Luz\n  digitalWrite(GreenLED, LOW);\n} else {\n  digitalWrite(RedLED, LOW);\n  digitalWrite(GreenLED, HIGH);  // Buena Luz\n}", {
+                    x: 1.0, y: 1.8, w: 6.6, h: 4.8, fontFace: "Roboto Mono", fontSize: 13, color: COLOR_AZUL, lineSpacing: 22
+                });
+
+                s6.addShape(pptx.shapes.RECTANGLE, { x: 8.1, y: 1.6, w: 4.4, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s6.addText("¿Cómo funciona el código?", { x: 8.3, y: 1.9, w: 4.0, h: 0.4, fontFace: "Montserrat", fontSize: 16, bold: true, color: COLOR_AZUL });
+                s6.addText("• Comparación analógica constante entre A0 (Sensor) y A1 (Perilla).\n\n• Si el valor de la fotocelda cae por debajo de la perilla, enciende el LED Rojo.\n\n• Si la luz es igual o superior al umbral, apaga el Rojo y activa el LED Verde.", {
+                    x: 8.3, y: 2.5, w: 4.0, h: 4.0, fontFace: "Inter", fontSize: 12, color: COLOR_TEXTO, lineSpacing: 18
+                });
+
+                // DIAPOSITIVA 7
+                let s7 = pptx.addSlide();
+                addHeader(s7, "Simulador Lab Integrado en la Plataforma Web");
+
+                s7.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s7.addText("¿Qué es el Simulador Lab?", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
+                s7.addText("Es un entorno virtual de pruebas integrado directamente en la pestaña 'Simulador & Lab' de esta página web.\n\nPermite experimentar el comportamiento del circuito, graficar las ondas de entrada en tiempo real con Chart.js y visualizar la consola Serie sin requerir hardware físico.", {
+                    x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                s7.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s7.addText("Instrucciones de Uso del Lab", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
+                s7.addText([
+                    { text: "1. Cambiar a pestaña 'Simulador & Lab'\n", options: { bold: true, color: COLOR_AZUL } },
+                    { text: "Haz clic en el botón superior para ingresar al laboratorio.\n\n", options: { color: COLOR_SUBTEXTO } },
+                    { text: "2. Mover Deslizador de Perilla (A1)\n", options: { bold: true, color: COLOR_MORADO } },
+                    { text: "Ajusta el valor deseado de disparo entre 0 y 1023.\n\n", options: { color: COLOR_SUBTEXTO } },
+                    { text: "3. Simular Luz Ambiente LDR (A0)\n", options: { bold: true, color: COLOR_AMARILLO } },
+                    { text: "Mueve la barra de iluminación y observa la conmutación de los LEDs Rojo/Verde y el monitor de consola.", options: { color: COLOR_SUBTEXTO } }
+                ], { x: 7.1, y: 2.6, w: 5.1, h: 4.0, fontFace: "Inter", fontSize: 12 });
+
+                // DIAPOSITIVA 8
+                let s8 = pptx.addSlide();
+                addHeader(s8, "Simulación Virtual en Tinkercad Circuits");
+
+                s8.addShape(pptx.shapes.RECTANGLE, { x: 1.5, y: 1.8, w: 10.33, h: 4.8, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 2 } });
+                s8.addText("Montaje Virtual en Autodesk Tinkercad", { x: 2.0, y: 2.3, w: 9.33, h: 0.6, fontFace: "Montserrat", fontSize: 22, bold: true, color: COLOR_VERDE, align: "center" });
+                s8.addText("El circuito ha sido completamente ensamblado y probado en un entorno de simulación virtual de alta precisión.", { x: 2.0, y: 3.1, w: 9.33, h: 0.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, align: "center" });
+                
+                s8.addShape(pptx.shapes.RECTANGLE, { x: 2.5, y: 4.2, w: 8.33, h: 1.2, fill: { color: "0F172A" }, line: { color: COLOR_AZUL, width: 1 } });
+                s8.addText("Enlace Directo de Simulación:\nhttps://www.tinkercad.com/things/7HAPNK5E0aT-proyecto-1ghc-con-arduino/editel", { x: 2.7, y: 4.4, w: 7.93, h: 0.8, fontFace: "Roboto Mono", fontSize: 12, color: COLOR_AZUL, align: "center" });
+
+                // DIAPOSITIVA 9
+                let s9 = pptx.addSlide();
+                addHeader(s9, "Referencias Bibliográficas");
+
+                const refs = [
+                    "• Documentación Oficial de Arduino: https://docs.arduino.cc/",
+                    "• Referencia analogRead() C++: https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/",
+                    "• Plataforma Autodesk Tinkercad Circuits: https://www.tinkercad.com/circuits",
+                    "• All About Circuits - Potenciómetros & LDRs: https://www.allaboutcircuits.com/"
+                ];
+
+                s9.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 11.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s9.addText(refs.join("\n\n\n"), { x: 1.2, y: 2.0, w: 10.9, h: 4.4, fontFace: "Inter", fontSize: 14, color: COLOR_AZUL, lineSpacing: 20 });
+
+                // DIAPOSITIVA 10
+                let s10 = pptx.addSlide();
+                addHeader(s10, "Declaración del Uso de Inteligencia Artificial");
+
+                s10.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s10.addText("Asistencia de IA Generativa", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
+                s10.addText("Se emplearon modelos de lenguaje (LLM) como herramienta de asistencia para maquetar la estructura responsiva en HTML5/Tailwind CSS y estructurar las funciones de exportación automatizada a PowerPoint.", {
+                    x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                s10.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s10.addText("Supervisión y Validación Humana", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
+                s10.addText("El diseño esquemático del circuito en Tinkercad, la programación C++ en Arduino, las pruebas analógicas y la estructuración didáctica fueron completamente analizados y verificados por los alumnos.", {
+                    x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
+                });
+
+                // DIAPOSITIVA 11
+                let s11 = pptx.addSlide();
+                addHeader(s11, "Conclusiones del Proyecto");
+
+                s11.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s11.addText("Eficiencia y Automatización", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
+                s11.addText("Se logró construir un prototipo de bajo costo que responde de manera instantánea a los cambios de iluminación, ofreciendo una solución práctica para el ahorro energético en sistemas de alumbrado.", {
+                    x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
+                });
+
+                s11.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s11.addText("Flexibilidad de Calibración", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
+                s11.addText("La integración del potenciómetro proporciona una interfaz física intuitiva que permite calibrar el margen de disparo para adaptarse a diferentes ambientes sin modificar el software.", {
+                    x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
+                });
+
+                // DIAPOSITIVA 12
+                let s12 = pptx.addSlide();
+                s12.background = { color: BG_COLOR };
+                s12.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_VERDE } });
+
+                s12.addText("¡MUCHAS GRACIAS!", {
+                    x: 1.0, y: 2.5, w: 11.33, h: 1.2,
+                    fontFace: "Montserrat", fontSize: 44, bold: true, color: COLOR_TEXTO, align: "center"
+                });
+                s12.addText("¿Tienen alguna pregunta o comentario sobre el circuito o el código?", {
+                    x: 1.0, y: 3.8, w: 11.33, h: 0.8,
+                    fontFace: "Inter", fontSize: 18, color: COLOR_SUBTEXTO, align: "center"
+                });
+                s12.addText("👏 👏 👏", {
+                    x: 1.0, y: 5.0, w: 11.33, h: 0.8,
+                    fontFace: "Inter", fontSize: 36, align: "center"
+                });
+
+                pptx.writeFile({ fileName: "Fotocelda_y_Potenciometro_Arduino.pptx" });
+
+            } catch (err) {
+                console.error("Error al generar la presentación PPTX:", err);
+                alert("Hubo un detalle al generar la presentación. Por favor revisa la consola del navegador.");
+            }
+        }
+    </script>
+</body>
+</html>
