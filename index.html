@@ -191,10 +191,16 @@
             </button>
         </nav>
 
-        <button onclick="exportToPPTX()" class="btn-download-pptx bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs md:text-sm px-5 py-2.5 rounded-full shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center gap-2 transition-all transform hover:-translate-y-0.5">
-            <i class="fa-solid fa-file-arrow-down text-base"></i>
-            <span>DESCARGAR PPTX (.pptx)</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="https://www.tinkercad.com/things/c6Njg6TUogZ/editel" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs md:text-sm px-4 py-2.5 rounded-full shadow-lg shadow-amber-900/40 border border-amber-400/30 flex items-center gap-2 transition-all transform hover:-translate-y-0.5">
+                <i class="fa-solid fa-cube text-base"></i>
+                <span>Tinkercad</span>
+            </a>
+            <button onclick="exportToPPTX()" class="btn-download-pptx bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs md:text-sm px-5 py-2.5 rounded-full shadow-lg shadow-emerald-900/40 border border-emerald-400/30 flex items-center gap-2 transition-all transform hover:-translate-y-0.5">
+                <i class="fa-solid fa-file-arrow-down text-base"></i>
+                <span>DESCARGAR PPTX</span>
+            </button>
+        </div>
     </header>
 
     <!-- MAIN CONTAINER -->
@@ -675,7 +681,7 @@
                     </div>
                 </div>
 
-                <!-- DIAPOSITIVA 8: SIMULADOR TINKERCAD CON IMAGEN INCORPORADA -->
+                <!-- DIAPOSITIVA 8: SIMULADOR TINKERCAD CON ENLACE ACTUALIZADO -->
                 <div class="slide-card justify-center items-center text-center" id="slide-8">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-xs mb-3">
                         <i class="fa-solid fa-cube"></i> SIMULACIÓN DE HARDWARE VIRTUAL
@@ -706,7 +712,7 @@
                             <p class="text-xs text-slate-400">Accede directamente a la maqueta interactiva virtual en Autodesk Tinkercad.</p>
                         </div>
                         
-                        <a href="https://www.tinkercad.com/things/7HAPNK5E0aT-proyecto-1ghc-con-arduino/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-xs px-6 py-3 rounded-xl shadow-lg shadow-sky-500/30 transition-all transform hover:scale-105 border border-sky-300/30">
+                        <a href="https://www.tinkercad.com/things/c6Njg6TUogZ/editel" target="_blank" rel="noopener noreferrer" class="shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-xs px-6 py-3 rounded-xl shadow-lg shadow-sky-500/30 transition-all transform hover:scale-105 border border-sky-300/30">
                             <i class="fa-solid fa-external-link-alt"></i>
                             <span>ABRIR EN TINKERCAD</span>
                         </a>
@@ -808,22 +814,30 @@
 
                 <!-- DIAPOSITIVA 12: FINAL Y APLAUSOS DE DISNEY (MYINSTANTS) -->
                 <div class="slide-card justify-center items-center text-center" id="slide-12">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-xs mb-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold text-xs mb-4">
                         <i class="fa-solid fa-star"></i> PRESENTACIÓN FINALIZADA
                     </div>
-                    <h1 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
+                    <h1 class="text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
                         ¡MUCHAS GRACIAS!
                     </h1>
-                    <p class="text-slate-300 text-base max-w-md mb-8">
+                    <p class="text-slate-300 text-sm max-w-md mb-6">
                         ¿Tienen alguna pregunta o comentario sobre el circuito o el código?
                     </p>
 
+                    <!-- Botón de Enlace a Tinkercad Integrado -->
+                    <div class="mb-6">
+                        <a href="https://www.tinkercad.com/things/c6Njg6TUogZ/editel" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition-all transform hover:scale-105 border border-sky-400/30">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                            <span>Abrir simulación en Tinkercad</span>
+                        </a>
+                    </div>
+
                     <!-- Botón de Aplausos con audio de Disney (MyInstants) -->
-                    <button id="btn-applause" onclick="playApplause()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-lg px-8 py-4 rounded-2xl shadow-xl shadow-amber-500/20 border border-amber-300 flex items-center gap-3 transition-all transform hover:scale-110 active:scale-95 cursor-pointer">
-                        <span class="text-2xl" id="applause-icon">👏</span>
+                    <button id="btn-applause" onclick="playApplause()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-base px-6 py-3 rounded-2xl shadow-xl shadow-amber-500/20 border border-amber-300 flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95 cursor-pointer mx-auto">
+                        <span class="text-xl" id="applause-icon">👏</span>
                         <span id="applause-text">REPRODUCIR APLAUSOS</span>
                     </button>
-                    <p class="text-xs text-amber-400/80 mt-3 font-mono-code" id="applause-status">Audio de Aplausos Disney (MyInstants)</p>
+                    <p class="text-xs text-amber-400/80 mt-2 font-mono-code" id="applause-status">Audio de Aplausos Disney (MyInstants)</p>
                 </div>
 
             </div>
@@ -1037,7 +1051,7 @@
             }
 
             btnText.textContent = "¡APLAUDIENDO! 👏";
-            btnIcon.className = "text-2xl animate-bounce";
+            btnIcon.className = "text-xl animate-bounce";
             statusTxt.textContent = "Cargando y reproduciendo Disney Applause...";
 
             applauseAudio = new Audio("https://www.myinstants.com/media/sounds/disney-applause.mp3");
@@ -1051,18 +1065,18 @@
                     console.error("Error al reproducir el audio:", e);
                     statusTxt.textContent = "Haz clic de nuevo si tu navegador bloqueó el audio.";
                     btnText.textContent = "REPRODUCIR APLAUSOS";
-                    btnIcon.className = "text-2xl";
+                    btnIcon.className = "text-xl";
                 });
             });
 
             applauseAudio.onended = () => {
                 btnText.textContent = "REPRODUCIR APLAUSOS";
-                btnIcon.className = "text-2xl";
+                btnIcon.className = "text-xl";
                 statusTxt.textContent = "Aplausos finalizados. ¡Haz clic para repetir!";
             };
         }
 
-        // GENERADOR PPTX CORREGIDO (12 DIAPOSITIVAS)
+        // GENERADOR PPTX CORREGIDO (12 DIAPOSITIVAS) CON NUEVO LINK DE TINKERCAD
         function exportToPPTX() {
             try {
                 if (typeof PptxGenJS === 'undefined') {
@@ -1231,7 +1245,7 @@
                     { text: "Mueve la barra de iluminación y observa la conmutación de los LEDs Rojo/Verde y el monitor de consola.", options: { color: COLOR_SUBTEXTO } }
                 ], { x: 7.1, y: 2.6, w: 5.1, h: 4.0, fontFace: "Inter", fontSize: 12 });
 
-                // DIAPOSITIVA 8
+                // DIAPOSITIVA 8 (Con el nuevo enlace a Tinkercad)
                 let s8 = pptx.addSlide();
                 addHeader(s8, "Simulación Virtual en Tinkercad Circuits");
 
@@ -1240,7 +1254,11 @@
                 s8.addText("El circuito ha sido completamente ensamblado y probado en un entorno de simulación virtual de alta precisión.", { x: 2.0, y: 3.1, w: 9.33, h: 0.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, align: "center" });
                 
                 s8.addShape(pptx.shapes.RECTANGLE, { x: 2.5, y: 4.2, w: 8.33, h: 1.2, fill: { color: "0F172A" }, line: { color: COLOR_AZUL, width: 1 } });
-                s8.addText("Enlace Directo de Simulación:\nhttps://www.tinkercad.com/things/7HAPNK5E0aT-proyecto-1ghc-con-arduino/editel", { x: 2.7, y: 4.4, w: 7.93, h: 0.8, fontFace: "Roboto Mono", fontSize: 12, color: COLOR_AZUL, align: "center" });
+                s8.addText("Enlace Directo de Simulación:\nhttps://www.tinkercad.com/things/c6Njg6TUogZ/editel", { 
+                    x: 2.7, y: 4.4, w: 7.93, h: 0.8, 
+                    fontFace: "Roboto Mono", fontSize: 12, color: COLOR_AZUL, align: "center",
+                    hyperlink: { url: "https://www.tinkercad.com/things/c6Njg6TUogZ/editel", tooltip: "Abrir en Tinkercad" }
+                });
 
                 // DIAPOSITIVA 9
                 let s9 = pptx.addSlide();
@@ -1294,16 +1312,25 @@
                 s12.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_VERDE } });
 
                 s12.addText("¡MUCHAS GRACIAS!", {
-                    x: 1.0, y: 2.5, w: 11.33, h: 1.2,
-                    fontFace: "Montserrat", fontSize: 44, bold: true, color: COLOR_TEXTO, align: "center"
+                    x: 1.0, y: 2.2, w: 11.33, h: 1.0,
+                    fontFace: "Montserrat", fontSize: 40, bold: true, color: COLOR_TEXTO, align: "center"
                 });
                 s12.addText("¿Tienen alguna pregunta o comentario sobre el circuito o el código?", {
-                    x: 1.0, y: 3.8, w: 11.33, h: 0.8,
-                    fontFace: "Inter", fontSize: 18, color: COLOR_SUBTEXTO, align: "center"
+                    x: 1.0, y: 3.4, w: 11.33, h: 0.6,
+                    fontFace: "Inter", fontSize: 16, color: COLOR_SUBTEXTO, align: "center"
                 });
+
+                // Botón interactivo de Tinkercad en PowerPoint
+                s12.addShape(pptx.shapes.RECTANGLE, { x: 4.66, y: 4.3, w: 4.0, h: 0.8, fill: { color: "0284C7" }, line: { color: COLOR_AZUL, width: 1 } });
+                s12.addText("Abrir en Tinkercad", {
+                    x: 4.66, y: 4.3, w: 4.0, h: 0.8,
+                    fontFace: "Inter", fontSize: 14, bold: true, color: COLOR_TEXTO, align: "center", verticalAlign: "middle",
+                    hyperlink: { url: "https://www.tinkercad.com/things/c6Njg6TUogZ/editel", tooltip: "Ir a Tinkercad" }
+                });
+
                 s12.addText("👏 👏 👏", {
-                    x: 1.0, y: 5.0, w: 11.33, h: 0.8,
-                    fontFace: "Inter", fontSize: 36, align: "center"
+                    x: 1.0, y: 5.3, w: 11.33, h: 0.6,
+                    fontFace: "Inter", fontSize: 28, align: "center"
                 });
 
                 pptx.writeFile({ fileName: "Fotocelda_y_Potenciometro_Arduino.pptx" });
