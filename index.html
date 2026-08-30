@@ -693,12 +693,12 @@
                         Captura real de las pruebas del circuito donde validamos la conmutación de los LEDs y las lecturas analógicas del potenciómetro y fotocelda.
                     </p>
 
-                    <!-- IMAGEN DEL SIMULADOR TINKERCAD -->
+                    <!-- IMAGEN DEL SIMULADOR TINKERCAD CON FALLBACK SVG SILENCIOSO -->
                     <div class="w-full max-w-3xl rounded-2xl overflow-hidden border border-sky-500/40 shadow-2xl mb-5 group relative bg-slate-900/90 p-2">
                         <img src="C:\Users\PC HP\Downloads\IMG PROYEECTO GHC THINKEERCAD.png"
                              alt="Captura de Prueba del Circuito en Tinkercad" 
                              class="w-full h-auto max-h-[310px] object-contain rounded-xl hover:scale-[1.02] transition-transform duration-300 mx-auto"
-                             onerror="this.onerror=null; this.src='file:///C:/Users/PC%20HP/Downloads/IMG%20PROYEECTO%20GHC%20THINKEERCAD.png';">
+                             onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'300\' viewBox=\'0 0 600 300\'><rect width=\'100%\' height=\'100%\' fill=\'%230f172a\'/><circle cx=\'200\' cy=\'150\' r=\'40\' fill=\'%2338bdf8\' opacity=\'0.2\'/><circle cx=\'400\' cy=\'150\' r=\'40\' fill=\'%2310b981\' opacity=\'0.2\'/><path d=\'M150 150 H 450 M 300 100 V 200\' stroke=\'%2338bdf8\' stroke-width=\'3\' stroke-dasharray=\'5,5\'/><text x=\'50%\' y=\'45%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2338bdf8\' font-family=\'sans-serif\' font-size=\'20\' font-weight=\'bold\'>CIRCULO ARDUINO TINKERCAD</text><text x=\'50%\' y=\'60%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2394a3b8\' font-family=\'sans-serif\' font-size=\'14\'>Circuito Simulado en Autodesk Tinkercad</text></svg>';">
                         <div class="mt-2 text-center text-xs text-slate-400 font-mono-code">
                             <i class="fa-solid fa-image text-sky-400 mr-1"></i> Screenshot 2026-08-28 — Entorno de Pruebas Tinkercad
                         </div>
@@ -1076,7 +1076,7 @@
             };
         }
 
-        // GENERADOR PPTX CORREGIDO (12 DIAPOSITIVAS) CON NUEVO LINK DE TINKERCAD
+        // GENERADOR PPTX COMPLETO Y CORREGIDO (12 DIAPOSITIVAS)
         function exportToPPTX() {
             try {
                 if (typeof PptxGenJS === 'undefined') {
@@ -1102,7 +1102,7 @@
                         x: 0.8, y: 0.5, w: 11.7, h: 0.7,
                         fontFace: "Montserrat", fontSize: 24, bold: true, color: COLOR_AZUL
                     });
-                    slide.addShape(pptx.shapes.RECTANGLE, {
+                    slide.addShape('rect', {
                         x: 0.8, y: 1.25, w: 11.73, h: 0.03, fill: { color: COLOR_AZUL }
                     });
                 }
@@ -1110,7 +1110,7 @@
                 // DIAPOSITIVA 1
                 let s1 = pptx.addSlide();
                 s1.background = { color: BG_COLOR };
-                s1.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_AZUL } });
+                s1.addShape('rect', { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_AZUL } });
                 
                 s1.addText("FOTOCELDA Y POTENCIÓMETRO CON ARDUINO", {
                     x: 1.0, y: 1.8, w: 11.33, h: 1.0,
@@ -1121,7 +1121,7 @@
                     fontFace: "Inter", fontSize: 16, color: COLOR_SUBTEXTO, align: "center"
                 });
 
-                s1.addShape(pptx.shapes.RECTANGLE, {
+                s1.addShape('rect', {
                     x: 2.0, y: 4.0, w: 9.33, h: 2.4,
                     fill: { color: CARD_BG }, line: { color: "334155", width: 1 }
                 });
@@ -1134,7 +1134,7 @@
                 let s2 = pptx.addSlide();
                 addHeader(s2, "¿De qué trata este Proyecto?");
                 
-                s2.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 7.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s2.addShape('rect', { x: 0.8, y: 1.6, w: 7.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                 s2.addText([
                     { text: "Control de Luz Inteligente:\n", options: { bold: true, color: COLOR_AZUL, fontSize: 16 } },
                     { text: "Mide continuamente la luz ambiental y toma la decisión automática de encender o apagar las luces según las necesidades del entorno.\n\n", options: { color: COLOR_TEXTO, fontSize: 13 } },
@@ -1142,7 +1142,7 @@
                     { text: "Permite calibrar de forma manual el umbral exacto de disparo mediante un potenciómetro, eliminando la necesidad de alterar el código del sistema.", options: { color: COLOR_TEXTO, fontSize: 13 } }
                 ], { x: 1.1, y: 1.9, w: 6.6, h: 4.6, fontFace: "Inter" });
 
-                s2.addShape(pptx.shapes.RECTANGLE, { x: 8.3, y: 1.6, w: 4.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s2.addShape('rect', { x: 8.3, y: 1.6, w: 4.2, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                 s2.addText("¿Dónde se aplica?", { x: 8.5, y: 2.0, w: 3.8, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AMARILLO, align: "center" });
                 s2.addText("• Alumbrado público automatizado\n\n• Focos automáticos de jardín y cochera\n\n• Iluminación de pasillos de emergencia\n\n• Control lumínico en invernaderos", {
                     x: 8.6, y: 2.8, w: 3.6, h: 3.6, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
@@ -1152,13 +1152,13 @@
                 let s3 = pptx.addSlide();
                 addHeader(s3, "Objetivos del Proyecto");
 
-                s3.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 2 } });
+                s3.addShape('rect', { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 2 } });
                 s3.addText("Objetivo General", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
                 s3.addText("Diseñar e implementar un sistema de control automático basado en Arduino UNO que regule la activación de luces indicadoras según la luz ambiental percibida por una fotocelda LDR, permitiendo ajustar fácilmente el punto de activación mediante una perilla reguladora.", {
                     x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
                 });
 
-                s3.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s3.addShape('rect', { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                 s3.addText("Objetivos Específicos", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
                 s3.addText([
                     { text: "1. Medir la luz ambiental:\n", options: { bold: true, color: COLOR_AMARILLO } },
@@ -1173,13 +1173,13 @@
                 let s4 = pptx.addSlide();
                 addHeader(s4, "Componentes Clave: Potenciómetro y Fotocelda");
 
-                s4.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_MORADO, width: 1 } });
+                s4.addShape('rect', { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_MORADO, width: 1 } });
                 s4.addText("Potenciómetro (10kΩ)", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_MORADO });
                 s4.addText("• ¿Qué es?: Resistencia variable manual con perilla giratoria.\n\n• Funcionamiento: Modifica la tensión (0V a 5V) enviada al pin analógico A1 del Arduino.\n\n• Función en el Proyecto: Permite ajustar qué tan oscuro debe estar el entorno para encender la luz de aviso sin reprogramar.", {
                     x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
                 });
 
-                s4.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AMARILLO, width: 1 } });
+                s4.addShape('rect', { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AMARILLO, width: 1 } });
                 s4.addText("Fotocelda (Sensor LDR)", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AMARILLO });
                 s4.addText("• ¿Qué es?: Resistencia cuyo valor varía según la cantidad de claridad incidente.\n\n• Funcionamiento: A mayor luz, menor resistencia. Envía el valor procesado al pin analógico A0.\n\n• Función en el Proyecto: Actúa como el 'ojo' del circuito, leyendo continuamente la luz del entorno.", {
                     x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
@@ -1204,7 +1204,7 @@
                     let posX = 0.8 + (col * 3.95);
                     let posY = 1.6 + (row * 2.65);
 
-                    s5.addShape(pptx.shapes.RECTANGLE, { x: posX, y: posY, w: 3.8, h: 2.4, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                    s5.addShape('rect', { x: posX, y: posY, w: 3.8, h: 2.4, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                     s5.addText(el.t, { x: posX + 0.2, y: posY + 0.2, w: 3.4, h: 0.4, fontFace: "Montserrat", fontSize: 14, bold: true, color: el.c });
                     s5.addText(el.d, { x: posX + 0.2, y: posY + 0.7, w: 3.4, h: 1.5, fontFace: "Inter", fontSize: 11, color: COLOR_TEXTO, lineSpacing: 16 });
                 });
@@ -1213,12 +1213,12 @@
                 let s6 = pptx.addSlide();
                 addHeader(s6, "Lógica y Código Arduino en C++");
 
-                s6.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 7.0, h: 5.2, fill: { color: "060911" }, line: { color: COLOR_AZUL, width: 1 } });
+                s6.addShape('rect', { x: 0.8, y: 1.6, w: 7.0, h: 5.2, fill: { color: "060911" }, line: { color: COLOR_AZUL, width: 1 } });
                 s6.addText("// 1. Leer entradas analógicas A0 y A1\nint Power = analogRead(A1);   // Perilla\nint inputLDR = analogRead(A0); // Sensor LDR\n\n// 2. Tomar decisión con estructura IF\nif (inputLDR < Power) {\n  digitalWrite(RedLED, HIGH);   // Falta Luz\n  digitalWrite(GreenLED, LOW);\n} else {\n  digitalWrite(RedLED, LOW);\n  digitalWrite(GreenLED, HIGH);  // Buena Luz\n}", {
                     x: 1.0, y: 1.8, w: 6.6, h: 4.8, fontFace: "Roboto Mono", fontSize: 13, color: COLOR_AZUL, lineSpacing: 22
                 });
 
-                s6.addShape(pptx.shapes.RECTANGLE, { x: 8.1, y: 1.6, w: 4.4, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s6.addShape('rect', { x: 8.1, y: 1.6, w: 4.4, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                 s6.addText("¿Cómo funciona el código?", { x: 8.3, y: 1.9, w: 4.0, h: 0.4, fontFace: "Montserrat", fontSize: 16, bold: true, color: COLOR_AZUL });
                 s6.addText("• Comparación analógica constante entre A0 (Sensor) y A1 (Perilla).\n\n• Si el valor de la fotocelda cae por debajo de la perilla, enciende el LED Rojo.\n\n• Si la luz es igual o superior al umbral, apaga el Rojo y activa el LED Verde.", {
                     x: 8.3, y: 2.5, w: 4.0, h: 4.0, fontFace: "Inter", fontSize: 12, color: COLOR_TEXTO, lineSpacing: 18
@@ -1228,13 +1228,13 @@
                 let s7 = pptx.addSlide();
                 addHeader(s7, "Simulador Lab Integrado en la Plataforma Web");
 
-                s7.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s7.addShape('rect', { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
                 s7.addText("¿Qué es el Simulador Lab?", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
                 s7.addText("Es un entorno virtual de pruebas integrado directamente en la pestaña 'Simulador & Lab' de esta página web.\n\nPermite experimentar el comportamiento del circuito, graficar las ondas de entrada en tiempo real con Chart.js y visualizar la consola Serie sin requerir hardware físico.", {
                     x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
                 });
 
-                s7.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s7.addShape('rect', { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
                 s7.addText("Instrucciones de Uso del Lab", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
                 s7.addText([
                     { text: "1. Cambiar a pestaña 'Simulador & Lab'\n", options: { bold: true, color: COLOR_AZUL } },
@@ -1245,15 +1245,15 @@
                     { text: "Mueve la barra de iluminación y observa la conmutación de los LEDs Rojo/Verde y el monitor de consola.", options: { color: COLOR_SUBTEXTO } }
                 ], { x: 7.1, y: 2.6, w: 5.1, h: 4.0, fontFace: "Inter", fontSize: 12 });
 
-                // DIAPOSITIVA 8 (Con el nuevo enlace a Tinkercad)
+                // DIAPOSITIVA 8
                 let s8 = pptx.addSlide();
                 addHeader(s8, "Simulación Virtual en Tinkercad Circuits");
 
-                s8.addShape(pptx.shapes.RECTANGLE, { x: 1.5, y: 1.8, w: 10.33, h: 4.8, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 2 } });
+                s8.addShape('rect', { x: 1.5, y: 1.8, w: 10.33, h: 4.8, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 2 } });
                 s8.addText("Montaje Virtual en Autodesk Tinkercad", { x: 2.0, y: 2.3, w: 9.33, h: 0.6, fontFace: "Montserrat", fontSize: 22, bold: true, color: COLOR_VERDE, align: "center" });
                 s8.addText("El circuito ha sido completamente ensamblado y probado en un entorno de simulación virtual de alta precisión.", { x: 2.0, y: 3.1, w: 9.33, h: 0.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, align: "center" });
                 
-                s8.addShape(pptx.shapes.RECTANGLE, { x: 2.5, y: 4.2, w: 8.33, h: 1.2, fill: { color: "0F172A" }, line: { color: COLOR_AZUL, width: 1 } });
+                s8.addShape('rect', { x: 2.5, y: 4.2, w: 8.33, h: 1.2, fill: { color: "0F172A" }, line: { color: COLOR_AZUL, width: 1 } });
                 s8.addText("Enlace Directo de Simulación:\nhttps://www.tinkercad.com/things/c6Njg6TUogZ/editel", { 
                     x: 2.7, y: 4.4, w: 7.93, h: 0.8, 
                     fontFace: "Roboto Mono", fontSize: 12, color: COLOR_AZUL, align: "center",
@@ -1271,20 +1271,20 @@
                     "• All About Circuits - Potenciómetros & LDRs: https://www.allaboutcircuits.com/"
                 ];
 
-                s9.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 11.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
+                s9.addShape('rect', { x: 0.8, y: 1.6, w: 11.7, h: 5.2, fill: { color: CARD_BG }, line: { color: "334155", width: 1 } });
                 s9.addText(refs.join("\n\n\n"), { x: 1.2, y: 2.0, w: 10.9, h: 4.4, fontFace: "Inter", fontSize: 14, color: COLOR_AZUL, lineSpacing: 20 });
 
                 // DIAPOSITIVA 10
                 let s10 = pptx.addSlide();
                 addHeader(s10, "Declaración del Uso de Inteligencia Artificial");
 
-                s10.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s10.addShape('rect', { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
                 s10.addText("Asistencia de IA Generativa", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
                 s10.addText("Se emplearon modelos de lenguaje (LLM) como herramienta de asistencia para maquetar la estructura responsiva en HTML5/Tailwind CSS y estructurar las funciones de exportación automatizada a PowerPoint.", {
                     x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
                 });
 
-                s10.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s10.addShape('rect', { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
                 s10.addText("Supervisión y Validación Humana", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
                 s10.addText("El diseño esquemático del circuito en Tinkercad, la programación C++ en Arduino, las pruebas analógicas y la estructuración didáctica fueron completamente analizados y verificados por los alumnos.", {
                     x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 13, color: COLOR_TEXTO, lineSpacing: 20
@@ -1294,50 +1294,48 @@
                 let s11 = pptx.addSlide();
                 addHeader(s11, "Conclusiones del Proyecto");
 
-                s11.addShape(pptx.shapes.RECTANGLE, { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
+                s11.addShape('rect', { x: 0.8, y: 1.6, w: 5.6, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_AZUL, width: 1 } });
                 s11.addText("Eficiencia y Automatización", { x: 1.1, y: 1.9, w: 5.0, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_AZUL });
                 s11.addText("Se logró construir un prototipo de bajo costo que responde de manera instantánea a los cambios de iluminación, ofreciendo una solución práctica para el ahorro energético en sistemas de alumbrado.", {
                     x: 1.1, y: 2.6, w: 5.0, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
                 });
 
-                s11.addShape(pptx.shapes.RECTANGLE, { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
+                s11.addShape('rect', { x: 6.8, y: 1.6, w: 5.7, h: 5.2, fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 } });
                 s11.addText("Flexibilidad de Calibración", { x: 7.1, y: 1.9, w: 5.1, h: 0.5, fontFace: "Montserrat", fontSize: 18, bold: true, color: COLOR_VERDE });
-                s11.addText("La integración del potenciómetro proporciona una interfaz física intuitiva que permite calibrar el margen de disparo para adaptarse a diferentes ambientes sin modificar el software.", {
+                s11.addText("La incorporación del potenciómetro permite adaptar la sensibilidad del circuito a cualquier ambiente lumínico sin necesidad de modificar el código ni reprogramar la placa.", {
                     x: 7.1, y: 2.6, w: 5.1, h: 3.8, fontFace: "Inter", fontSize: 14, color: COLOR_TEXTO, lineSpacing: 22
                 });
 
-                // DIAPOSITIVA 12
+                // DIAPOSITIVA 12: ¡MUCHAS GRACIAS!
                 let s12 = pptx.addSlide();
                 s12.background = { color: BG_COLOR };
-                s12.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_VERDE } });
+                s12.addShape('rect', { x: 0, y: 0, w: 13.33, h: 0.4, fill: { color: COLOR_VERDE } });
 
                 s12.addText("¡MUCHAS GRACIAS!", {
                     x: 1.0, y: 2.2, w: 11.33, h: 1.0,
-                    fontFace: "Montserrat", fontSize: 40, bold: true, color: COLOR_TEXTO, align: "center"
+                    fontFace: "Montserrat", fontSize: 36, bold: true, color: COLOR_AZUL, align: "center"
                 });
                 s12.addText("¿Tienen alguna pregunta o comentario sobre el circuito o el código?", {
-                    x: 1.0, y: 3.4, w: 11.33, h: 0.6,
+                    x: 1.0, y: 3.3, w: 11.33, h: 0.6,
                     fontFace: "Inter", fontSize: 16, color: COLOR_SUBTEXTO, align: "center"
                 });
 
-                // Botón interactivo de Tinkercad en PowerPoint
-                s12.addShape(pptx.shapes.RECTANGLE, { x: 4.66, y: 4.3, w: 4.0, h: 0.8, fill: { color: "0284C7" }, line: { color: COLOR_AZUL, width: 1 } });
-                s12.addText("Abrir en Tinkercad", {
-                    x: 4.66, y: 4.3, w: 4.0, h: 0.8,
-                    fontFace: "Inter", fontSize: 14, bold: true, color: COLOR_TEXTO, align: "center", verticalAlign: "middle",
-                    hyperlink: { url: "https://www.tinkercad.com/things/c6Njg6TUogZ/editel", tooltip: "Ir a Tinkercad" }
+                s12.addShape('rect', {
+                    x: 2.5, y: 4.4, w: 8.33, h: 1.2,
+                    fill: { color: CARD_BG }, line: { color: COLOR_VERDE, width: 1 }
+                });
+                s12.addText("Simulación interactiva disponible en Tinkercad:\nhttps://www.tinkercad.com/things/c6Njg6TUogZ/editel", {
+                    x: 2.7, y: 4.6, w: 7.93, h: 0.8,
+                    fontFace: "Roboto Mono", fontSize: 12, color: COLOR_VERDE, align: "center",
+                    hyperlink: { url: "https://www.tinkercad.com/things/c6Njg6TUogZ/editel", tooltip: "Abrir en Tinkercad" }
                 });
 
-                s12.addText("👏 👏 👏", {
-                    x: 1.0, y: 5.3, w: 11.33, h: 0.6,
-                    fontFace: "Inter", fontSize: 28, align: "center"
-                });
-
+                // DESCARGAR EL ARCHIVO PPTX
                 pptx.writeFile({ fileName: "Fotocelda_y_Potenciometro_Arduino.pptx" });
 
-            } catch (err) {
-                console.error("Error al generar la presentación PPTX:", err);
-                alert("Hubo un detalle al generar la presentación. Por favor revisa la consola del navegador.");
+            } catch (error) {
+                console.error("Error al exportar PPTX:", error);
+                alert("Ocurrió un error al generar la presentación PowerPoint. Por favor verifica la consola.");
             }
         }
     </script>
